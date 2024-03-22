@@ -1485,10 +1485,21 @@ export type MapEvent =
     | 'styleimagemissing'
 
     /**
+     * Fired immediately after all style resources have been downloaded
+     * and the first visually complete rendering of the base style has occurred.
+     *
      * @event style.load
      * @memberof Map
      * @instance
-     * @private
+     * @example
+     * // Initialize the map
+     * const map = new mapboxgl.Map({});
+     * // Set an event listener that fires
+     * // when the map has finished loading.
+     * map.on('style.load', () => {
+     *     console.log('A style load event occurred.');
+     * });
+     * @see [Example: Persist layers when switching base style](https://www.mapbox.com/mapbox-gl-js/example/style-switch)
      */
     | 'style.load'
 
@@ -1510,4 +1521,31 @@ export type MapEvent =
      * });
      */
     | 'speedindexcompleted'
+
+    /**
+     * Fired after RTL text plugin state changes.
+     *
+     * @event pluginStateChange
+     * @instance
+     * @private
+     */
+    | 'pluginStateChange'
+
+    /**
+     * Fired in worker.js after sprite loaded.
+     *
+     * @event pluginStateChange
+     * @instance
+     * @private
+     */
+    | 'isSpriteLoaded'
+
+    /**
+     * Fired in style.js after layer order changed.
+     *
+     * @event pluginStateChange
+     * @instance
+     * @private
+     */
+    | 'neworder'
 ;
