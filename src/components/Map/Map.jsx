@@ -1,5 +1,4 @@
 import mapboxgl from 'mapbox-gl';
-import turf from '@turf/length';
 import { useEffect, useRef, useState } from 'react';
 
 import './Map.css';
@@ -121,13 +120,12 @@ const MapComponent = () => {
 
           geojson.features.push(linestring);
 
-          console.log(linestring.geometry.coordinates);
 
           function deg2rad(deg) {
             return deg * (Math.PI / 180);
           }
 
-          
+
           //the distance calculations has to be done by script writing by you (not by some 3rd party API)
           function getDistance(coord1, coord2) {
             const R = 6371; // Earth's radius in kilometers
@@ -210,7 +208,6 @@ const MapComponent = () => {
         id="distance"
         className={[
           distance != null ? 'distance-container' : '',
-          'text-base',
         ].join(' ')}
       >
         Total distance: {distance} km
