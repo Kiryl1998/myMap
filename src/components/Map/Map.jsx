@@ -1,4 +1,6 @@
 import mapboxgl from 'mapbox-gl';
+import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
+import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
 import { useEffect, useRef, useState } from 'react';
 
 import './Map.css';
@@ -8,6 +10,7 @@ mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_KEY;
 const MapComponent = () => {
   const mapContainer = useRef(null);
   const map = useRef(null);
+  const inputRef = useRef(null);
   const distanceContainer = useRef(null);
   const [lng, setLng] = useState(18.6843);
   const [lat, setLat] = useState(54.3451);
@@ -37,6 +40,7 @@ const MapComponent = () => {
       center: [lng, lat],
       zoom: zoom,
     });
+
     map.current.addControl(new mapboxgl.NavigationControl());
     map.current.addControl(new mapboxgl.FullscreenControl());
     map.current.addControl(
@@ -120,11 +124,9 @@ const MapComponent = () => {
 
           geojson.features.push(linestring);
 
-
           function deg2rad(deg) {
             return deg * (Math.PI / 180);
           }
-
 
           //the distance calculations has to be done by script writing by you (not by some 3rd party API)
           function getDistance(coord1, coord2) {
@@ -179,13 +181,6 @@ const MapComponent = () => {
           : 'crosshair';
       });
     });
-
-    // map.current.addControl(
-    //   new MapboxDirections({
-    //     accessToken: mapboxgl.accessToken,
-    //   }),
-    //   'top-left'
-    // );
   });
 
   useEffect(() => {
@@ -206,9 +201,9 @@ const MapComponent = () => {
       <div
         ref={distanceContainer}
         id="distance"
-        className={[
-          distance != null ? 'distance-container' : '',
-        ].join(' ')}
+        className={[distance != null ? 'distance-container' : 'hidden'].join(
+          ' '
+        )}
       >
         Total distance: {distance} km
       </div>

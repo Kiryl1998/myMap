@@ -2,5 +2,5 @@
   @apply absolute bottom-4 left-3 z-10 bg-black bg-opacity-50 text-white p-1.5  rounded-md;
 }
 .distance-container {
-  @apply absolute top-10 left-3 z-10 bg-black bg-opacity-50 text-white block p-2 rounded-md text-base;
+  @apply absolute bottom-14 left-3 z-10 bg-black bg-opacity-50 text-white block p-2 rounded-md text-base;
 }
