@@ -11,7 +11,6 @@ mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_KEY;
 const MapComponent = () => {
   const mapContainer = useRef(null);
   const map = useRef(null);
-  const inputRef = useRef(null);
   const distanceContainer = useRef(null);
   const [lng, setLng] = useState(18.6843);
   const [lat, setLat] = useState(54.3451);
@@ -85,13 +84,6 @@ const MapComponent = () => {
         filter: ['in', '$type', 'LineString'],
       });
 
-      const geocoder = new MapboxGeocoder({
-        accessToken: mapboxgl.accessToken,
-        mapboxgl: mapboxgl,
-      });
-
-      map.current.addControl(geocoder, 'top-left');
-
       function handleMapClickOrGeocoderResult(coordinates) {
         const features = map.current.queryRenderedFeatures(coordinates, {
           layers: ['measure-points'],
@@ -144,11 +136,28 @@ const MapComponent = () => {
         setDistance(totalDistance.toFixed(3));
       }
 
-      geocoder.on('result', (e) => {
-        const { result } = e;
-        const { geometry } = result;
-        handleMapClickOrGeocoderResult(geometry.coordinates);
-      });
+      function createGeocoder() {
+        const geocoder = new MapboxGeocoder({
+          accessToken: mapboxgl.accessToken,
+          mapboxgl: mapboxgl,
+        });
+
+        map.current.addControl(geocoder, 'top-left');
+
+        geocoder.on('result', (e) => {
+          const { result } = e;
+          const { geometry } = result;
+          handleMapClickOrGeocoderResult(geometry.coordinates);
+        });
+      }
+      createGeocoder();
+
+      // Обработчик события для кнопки
+      document
+        .getElementById('addGeocoderButton')
+        .addEventListener('click', function () {
+          createGeocoder(); // Создаем новый экземпляр geocoder при нажатии на кнопку
+        });
 
       map.current.on('click', (e) => {
         handleMapClickOrGeocoderResult([e.lngLat.lng, e.lngLat.lat]);
@@ -191,6 +200,9 @@ const MapComponent = () => {
       >
         Total distance: {distance} km
       </div>
+      <button className="button" id="addGeocoderButton">
+        Добавить
+      </button>
     </>
   );
 };
