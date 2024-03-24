@@ -90,41 +90,17 @@ const MapComponent = () => {
         mapboxgl: mapboxgl,
       });
 
-      geocoder.on('result', (e) => {
-        const { result } = e;
-        const { geometry, place_name } = result;
+      map.current.addControl(geocoder, 'top-left');
 
-        const point = {
-          type: 'Feature',
-          geometry: {
-            type: 'Point',
-            coordinates: geometry.coordinates,
-          },
-          properties: {
-            id: String(new Date().getTime()),
-            address: place_name,
-          },
-        };
-
-        geojson.features.push(point);
-        map.current.getSource('geojson').setData(geojson);
-      });
-
-      map.current.addControl(geocoder);
-
-      map.current.on('click', (e) => {
-        const features = map.current.queryRenderedFeatures(e.point, {
+      function handleMapClickOrGeocoderResult(coordinates) {
+        const features = map.current.queryRenderedFeatures(coordinates, {
           layers: ['measure-points'],
         });
 
-        // Remove the linestring from the group
-        // so we can redraw it based on the points collection.
-        if (geojson.features.length > 1) geojson.features.pop();
+        if (geojson.features.length > 1) {
+          geojson.features.pop();
+        }
 
-        // Clear the distance container to populate it with a new value.
-        distanceContainer.innerHTML = '';
-
-        // If a feature was clicked, remove it from the map.
         if (features.length) {
           const id = features[0].properties.id;
           geojson.features = geojson.features.filter(
@@ -135,7 +111,7 @@ const MapComponent = () => {
             type: 'Feature',
             geometry: {
               type: 'Point',
-              coordinates: [e.lngLat.lng, e.lngLat.lat],
+              coordinates: coordinates,
             },
             properties: {
               id: String(new Date().getTime()),
@@ -151,22 +127,31 @@ const MapComponent = () => {
           );
 
           geojson.features.push(linestring);
-
-          let totalDistance = 0; // Total distance between all points
-
-          // Iterate through all coordinate pairs and calculate the distance between them
-          for (let i = 0; i < linestring.geometry.coordinates.length - 1; i++) {
-            const distance = getDistance(
-              linestring.geometry.coordinates[i],
-              linestring.geometry.coordinates[i + 1]
-            );
-            totalDistance += distance; // Add the distance to the total distance
-          }
-
-          setDistance(totalDistance.toFixed(3)); // Changing distance state
         }
 
         map.current.getSource('geojson').setData(geojson);
+
+        let totalDistance = 0;
+
+        for (let i = 0; i < linestring.geometry.coordinates.length - 1; i++) {
+          const distance = getDistance(
+            linestring.geometry.coordinates[i],
+            linestring.geometry.coordinates[i + 1]
+          );
+          totalDistance += distance;
+        }
+
+        setDistance(totalDistance.toFixed(3));
+      }
+
+      geocoder.on('result', (e) => {
+        const { result } = e;
+        const { geometry } = result;
+        handleMapClickOrGeocoderResult(geometry.coordinates);
+      });
+
+      map.current.on('click', (e) => {
+        handleMapClickOrGeocoderResult([e.lngLat.lng, e.lngLat.lat]);
       });
 
       map.current.on('mousemove', (e) => {
